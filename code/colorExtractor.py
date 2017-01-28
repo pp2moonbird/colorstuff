@@ -15,6 +15,7 @@ def kmeans(m, k):
     seeds = initial_seeds
     previous_seeds = seeds
 
+    turn = 1
     while(True):
         distance = np.empty((m.shape[0], k))
         for i, seed in enumerate(seeds):
@@ -22,16 +23,29 @@ def kmeans(m, k):
 
         nearest_indexes = np.argmin(distance, axis=1)
 
+        cores = []
         for i in range(k):
             cluster_indexes = nearest_indexes == i
 
             cluster = m[cluster_indexes, :]
-            print('cluster ', i, ' shape is: ', cluster.shape)
+            # print('cluster ', i, ' shape is: ', cluster.shape)
             new_core = np.sum(cluster, axis=0)/cluster.shape[0]
-            print('new core: ', new_core)
+            # print('new core: ', new_core)
+            cores.append(new_core)
+
+        seeds = np.array(cores)
+        seeds = np.floor(seeds)
+        seeds = seeds[seeds[:,0].argsort()]
+
+        print('turn: ', turn)
+        turn = turn + 1
+        print(seeds)
 
         if(np.array_equal(previous_seeds, seeds)):
             break
+
+        previous_seeds = seeds
+
 
     return seeds
 
@@ -70,7 +84,7 @@ def drawOutput(fp, color_matrix, block_size):
 
 def main():
     print('main')
-    inputFile = r'..\image\v.bmp'
+    inputFile = r'..\image\test.jpg'
     # get color matrix from a picture
     image_matrix = np.asarray(Image.open(inputFile))
 
@@ -81,7 +95,7 @@ def main():
 
     # kmeans to calculate k average color
 
-    result = kmeans(image_matrix, 5)
+    result = kmeans(image_matrix, 10)
     print(result)
 
     # draw k color to a result image
